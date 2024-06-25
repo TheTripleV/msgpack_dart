@@ -140,17 +140,31 @@ class Deserializer {
     return res;
   }
 
-  int _readUInt64() {
-    final res = _data.getUint64(_offset);
-    _offset += 8;
-    return res;
+  int _read64({bool signed = false}) {
+    const isWeb = bool.fromEnvironment('dart.library.html');
+    var value;
+
+    if (isWeb) {
+      final hi = signed ? _data.getInt32(_offset) : _data.getUint32(_offset);
+      _offset += 4;
+      final lo = _data.getUint32(_offset);
+      _offset += 4;
+
+      value = (hi * 0x100000000) + lo;
+      if (value > 9007199254740991 || (signed && value < -9007199254740991)) {
+        throw FormatError("64-bit value exceeds JavaScript's safe integer range");
+      }
+    } else {
+      value = signed ? _data.getInt64(_offset) : _data.getUint64(_offset);
+      _offset += 8;
+    }
+
+    return value;
   }
 
-  int _readInt64() {
-    final res = _data.getInt64(_offset);
-    _offset += 8;
-    return res;
-  }
+  int _readUInt64() => _read64();
+
+  int _readInt64() => _read64(signed: true);
 
   double _readFloat() {
     final res = _data.getFloat32(_offset);
