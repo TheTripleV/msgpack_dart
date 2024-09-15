@@ -44,17 +44,59 @@ class DataWriter {
     _scratchOffset += 4;
   }
 
-  void writeUint64(int i, [Endian endian = Endian.big]) {
+void writeUint64(int i, [Endian endian = Endian.big]) {
+  const isWeb = identical(0, 0.0); // Alternative way to check for web platform
+  if (isWeb) {
+    if (i > 9007199254740991 || i < 0) {
+      throw FormatError("64-bit value exceeds JavaScript's safe integer range");
+    }
+    _ensureSize(8);
+    final hi = (i >> 32) & 0xFFFFFFFF;
+    final lo = i & 0xFFFFFFFF;
+    if (endian == Endian.big) {
+      _scratchData?.setUint32(_scratchOffset, hi, endian);
+      _scratchOffset += 4;
+      _scratchData?.setUint32(_scratchOffset, lo, endian);
+      _scratchOffset += 4;
+    } else {
+      _scratchData?.setUint32(_scratchOffset, lo, endian);
+      _scratchOffset += 4;
+      _scratchData?.setUint32(_scratchOffset, hi, endian);
+      _scratchOffset += 4;
+    }
+  } else {
     _ensureSize(8);
     _scratchData?.setUint64(_scratchOffset, i, endian);
     _scratchOffset += 8;
   }
+}
 
-  void writeInt64(int i, [Endian endian = Endian.big]) {
+void writeInt64(int i, [Endian endian = Endian.big]) {
+  const isWeb = identical(0, 0.0); // Alternative way to check for web platform
+  if (isWeb) {
+    if (i > 9007199254740991 || i < -9007199254740991) {
+      throw FormatError("64-bit value exceeds JavaScript's safe integer range");
+    }
+    _ensureSize(8);
+    final hi = (i >> 32);
+    final lo = i & 0xFFFFFFFF;
+    if (endian == Endian.big) {
+      _scratchData?.setInt32(_scratchOffset, hi, endian);
+      _scratchOffset += 4;
+      _scratchData?.setUint32(_scratchOffset, lo, endian);
+      _scratchOffset += 4;
+    } else {
+      _scratchData?.setUint32(_scratchOffset, lo, endian);
+      _scratchOffset += 4;
+      _scratchData?.setInt32(_scratchOffset, hi, endian);
+      _scratchOffset += 4;
+    }
+  } else {
     _ensureSize(8);
     _scratchData?.setInt64(_scratchOffset, i, endian);
     _scratchOffset += 8;
   }
+}
 
   void writeFloat32(double f, [Endian endian = Endian.big]) {
     _ensureSize(4);
