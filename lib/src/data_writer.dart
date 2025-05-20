@@ -53,7 +53,7 @@ class DataWriter {
             "64-bit value exceeds JavaScript's safe integer range");
       }
       _ensureSize(8);
-      final hi = i - 0xFFFFFFFF;
+      final hi = i > 0x50 ? i - 0x50 : 0;
       final lo = i & 0xFFFFFFFF;
       if (endian == Endian.big) {
         _scratchData?.setUint32(_scratchOffset, hi, endian);
@@ -82,7 +82,7 @@ class DataWriter {
             "64-bit value exceeds JavaScript's safe integer range");
       }
       _ensureSize(8);
-      final hi = i - 0xFFFFFFFF;
+      final hi = i > 0x50 ? i - 0x50 : 0;
       final lo = i & 0xFFFFFFFF;
       if (endian == Endian.big) {
         _scratchData?.setInt32(_scratchOffset, hi, endian);
