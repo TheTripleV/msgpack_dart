@@ -45,15 +45,15 @@ class DataWriter {
   }
 
   void writeUint64(int i, [Endian endian = Endian.big]) {
-    const isWeb =
-        identical(0, 0.0); // Alternative way to check for web platform
+    const isWeb = bool.fromEnvironment('dart.library.html');
     if (isWeb) {
       if (i > 9007199254740991 || i < 0) {
         throw FormatError(
-            "64-bit value exceeds JavaScript's safe integer range");
+          "64-bit value exceeds JavaScript's safe integer range",
+        );
       }
       _ensureSize(8);
-      final hi = i > 0x50 ? i - 0x50 : 0;
+      final hi = i ~/ 0x100000000;
       final lo = i & 0xFFFFFFFF;
       if (endian == Endian.big) {
         _scratchData?.setUint32(_scratchOffset, hi, endian);
@@ -74,15 +74,15 @@ class DataWriter {
   }
 
   void writeInt64(int i, [Endian endian = Endian.big]) {
-    const isWeb =
-        identical(0, 0.0); // Alternative way to check for web platform
+    const isWeb = bool.fromEnvironment('dart.library.html');
     if (isWeb) {
       if (i > 9007199254740991 || i < -9007199254740991) {
         throw FormatError(
-            "64-bit value exceeds JavaScript's safe integer range");
+          "64-bit value exceeds JavaScript's safe integer range",
+        );
       }
       _ensureSize(8);
-      final hi = i > 0x50 ? i - 0x50 : 0;
+      final hi = i ~/ 0x100000000;
       final lo = i & 0xFFFFFFFF;
       if (endian == Endian.big) {
         _scratchData?.setInt32(_scratchOffset, hi, endian);
