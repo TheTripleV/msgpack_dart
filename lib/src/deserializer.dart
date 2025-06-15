@@ -151,9 +151,6 @@ class Deserializer {
       _offset += 4;
 
       value = (hi * 0x100000000) + lo;
-      if (value > 9007199254740991 || (signed && value < -9007199254740991)) {
-        throw FormatError("64-bit value exceeds JavaScript's safe integer range");
-      }
     } else {
       value = signed ? _data.getInt64(_offset) : _data.getUint64(_offset);
       _offset += 8;
