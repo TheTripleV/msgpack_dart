@@ -47,11 +47,6 @@ class DataWriter {
   void writeUint64(int i, [Endian endian = Endian.big]) {
     const isWeb = bool.fromEnvironment('dart.library.html');
     if (isWeb) {
-      if (i > 9007199254740991 || i < 0) {
-        throw FormatError(
-          "64-bit value exceeds JavaScript's safe integer range",
-        );
-      }
       _ensureSize(8);
       final hi = i ~/ 0x100000000;
       final lo = i & 0xFFFFFFFF;
@@ -76,11 +71,6 @@ class DataWriter {
   void writeInt64(int i, [Endian endian = Endian.big]) {
     const isWeb = bool.fromEnvironment('dart.library.html');
     if (isWeb) {
-      if (i > 9007199254740991 || i < -9007199254740991) {
-        throw FormatError(
-          "64-bit value exceeds JavaScript's safe integer range",
-        );
-      }
       _ensureSize(8);
       final hi = i ~/ 0x100000000;
       final lo = i & 0xFFFFFFFF;
